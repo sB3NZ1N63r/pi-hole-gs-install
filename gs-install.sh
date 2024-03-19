@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck shell=bash
 
 # GRAVITY SYNC BY VMSTAN #####################
 # gs-install.sh ##############################
@@ -108,7 +109,7 @@ if [ "${LOCALADMIN}" == "nosudo" ]; then
     echo -e "  You will need to manually compensate for this error."
     echo -e "  Installation cannot continue at this time."
     echo -e "${INFO} Exiting Gravity Sync Installer"
-    exit
+    exit 1
 fi
 
 echo -e "${INFO} Validating Install of Required Components"
@@ -120,7 +121,7 @@ else
     echo -e "  You will need to manually compensate for this error."
     echo -e "  Installation cannot continue at this time."
     echo -e "${INFO} Exiting Gravity Sync Installer"
-    exit
+    exit 1
 fi
 
 # Check GIT
@@ -129,7 +130,7 @@ if hash git 2>/dev/null; then
 else
     if [ ! "${OS_PKG}" = "unknown" ]; then
         echo -e "${INFO} Attempting Install of Git"
-        sudo ${OS_INSTALL} git
+        sudo "${OS_INSTALL} git"
     else
         echo -e "${FAIL} GIT has not been detected"
         echo -e "${WARN} This is required to download and update Gravity Sync"
@@ -144,7 +145,7 @@ if hash rsync 2>/dev/null; then
 else
     if [ ! "${OS_PKG}" = "unknown" ]; then
         echo -e "${INFO} Attempting Install of Rsync"
-        sudo ${OS_INSTALL} rsync
+        sudo "${OS_INSTALL} rsync"
     else
         echo -e "${FAIL} RSYNC not detected on this system"
         echo -e "${WARN} This is required to transfer data to/from your remote Pi-hole"
@@ -173,8 +174,7 @@ if [ "$GS_DOCKER" != "1" ]; then
         if hash docker 2>/dev/null; then
             echo -e "${GOOD} Docker installation has been detected"
             FTLCHECK=$(sudo docker container ls | grep 'pihole/pihole')
-                if [ "$FTLCHECK" != "" ]
-                then
+                if [ "$FTLCHECK" != "" ]; then
                     echo -e "${GOOD} Docker container of Pi-hole has been detected"
                 else
                     echo -e "${WARN} There is no Docker container of Pi-hole running"
@@ -183,8 +183,7 @@ if [ "$GS_DOCKER" != "1" ]; then
         elif hash podman 2>/dev/null; then
             echo -e "${GOOD} Podman installation has been detected"
             FTLCHECK=$(sudo podman container ls | grep 'pihole/pihole')
-                if [ "$FTLCHECK" != "" ]
-                then
+                if [ "$FTLCHECK" != "" ]; then
                     echo -e "${GOOD} Podman container of Pi-hole has been detected"
                 else
                     echo -e "${WARN} There is no Podman container of Pi-hole running"
@@ -210,7 +209,7 @@ if [ "$CROSSCOUNT" != "0" ]; then
     echo -e "${FAIL} ${RED}${CROSSCOUNT} critical issue(s) prevent successful deployment${NC}"
     echo -e "  Please manually compensate for the failures and re-execute"
     echo -e "${INFO} Exiting Gravity Sync Installer"
-    exit
+    exit 1
 else
     echo -e "${INFO} Executing Gravity Sync Deployment"
     
@@ -244,36 +243,36 @@ else
         echo -e "  Execute again here or on another system without 'GS=prep'"
         echo -e "  https://github.com/vmstan/gravity-sync/wiki for questions"
         echo -e "${INFO} Gravity Sync Preperation Complete"
-        exit
+        exit 0
     else
         echo -e "${STAT} Creating Gravity Sync Directories"
-            if [ -d /etc/gravity-sync/.gs ]; then
-                sudo rm -fr /etc/gravity-sync/.gs
-            fi
+        if [ -d /etc/gravity-sync/.gs ]; then
+            sudo rm -fr /etc/gravity-sync/.gs
+        fi
 
-            if [ ! -d /etc/gravity-sync ]; then
-                sudo mkdir /etc/gravity-sync
-                sudo chmod 775 /etc/gravity-sync
-            fi
+        if [ ! -d /etc/gravity-sync ]; then
+            sudo mkdir /etc/gravity-sync
+            sudo chmod 775 /etc/gravity-sync
+        fi
 
-            if [ -f /usr/local/bin/gravity-sync ]; then
-                sudo rm -f /usr/local/bin/gravity-sync
-            fi
-            
-            if [ "$GS_DEV" != "" ]; then
-                sudo git clone -b "${GS_DEV}" https://github.com/vmstan/gravity-sync.git /etc/gravity-sync/.gs
-                sudo touch /etc/gravity-sync/.gs/dev
-                echo -e "BRANCH='origin/$GS_DEV'" | sudo tee /etc/gravity-sync/.gs/dev
-            else
-                sudo git clone https://github.com/vmstan/gravity-sync.git /etc/gravity-sync/.gs
-            fi
-            sudo cp /etc/gravity-sync/.gs/gravity-sync /usr/local/bin
-            
+        if [ -f /usr/local/bin/gravity-sync ]; then
+            sudo rm -f /usr/local/bin/gravity-sync
+        fi
+        
+        if [ "$GS_DEV" != "" ]; then
+            sudo git clone -b "${GS_DEV}" https://github.com/vmstan/gravity-sync.git /etc/gravity-sync/.gs
+            sudo touch /etc/gravity-sync/.gs/dev
+            echo -e "BRANCH='origin/$GS_DEV'" | sudo tee /etc/gravity-sync/.gs/dev
+        else
+            sudo git clone https://github.com/vmstan/gravity-sync.git /etc/gravity-sync/.gs
+        fi
+        sudo cp /etc/gravity-sync/.gs/gravity-sync /usr/local/bin
+        
         if [ "$GS_DOCKER" == "1" ]; then
-            exit
+            exit 1
         fi    
-            echo -e "${STAT} Starting Gravity Sync Configuration"
-
+        
+        echo -e "${STAT} Starting Gravity Sync Configuration"
         if [ ! -f /etc/gravity-sync/gravity-sync.conf ]; then 
             /usr/local/bin/gravity-sync configure $1 <&1
         else
@@ -282,8 +281,9 @@ else
             echo -e "  Use ${YELLOW}gravity-sync update${NC} in the future as an alternative"
             echo -e "${GOOD} Upgrade Complete"
             echo -e "${INFO} Installation Exiting"
-            exit
+            exit 1
         fi
     fi
 fi
-exit
+
+exit 0
