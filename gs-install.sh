@@ -59,6 +59,8 @@ CROSSCOUNT="0"
 PHFAILCOUNT="0"
 CURRENTUSER=$(whoami)
 
+gsGitUrl="https://github.com/sB3NZ1N63r/pi-hole-gs-install.git"
+
 
 # Header
 echo -e "${LOGO} ${BOLD}Gravity Sync Installation Script${NC}"
@@ -260,11 +262,11 @@ else
         fi
         
         if [ "$GS_DEV" != "" ]; then
-            sudo git clone -b "${GS_DEV}" https://github.com/vmstan/gravity-sync.git /etc/gravity-sync/.gs
+            sudo git clone -b "${GS_DEV}" "${gsGitUrl}" /etc/gravity-sync/.gs
             sudo touch /etc/gravity-sync/.gs/dev
             echo -e "BRANCH='origin/$GS_DEV'" | sudo tee /etc/gravity-sync/.gs/dev
         else
-            sudo git clone https://github.com/vmstan/gravity-sync.git /etc/gravity-sync/.gs
+            sudo git clone "${gsGitUrl}" /etc/gravity-sync/.gs
         fi
         sudo cp /etc/gravity-sync/.gs/gravity-sync /usr/local/bin
         
