@@ -76,7 +76,7 @@ if [ ! "$EUID" -ne 0 ]; then
             CROSSCOUNT=$((CROSSCOUNT+1))
         else
             echo -e "${INFO} Installing Sudo"
-            ${OS_INSTALL} sudo
+            bash -c "${OS_INSTALL} sudo"
         fi
     else
         echo -e "${GOOD} Sudo utility detected"
@@ -132,7 +132,7 @@ if hash git 2>/dev/null; then
 else
     if [ ! "${OS_PKG}" = "unknown" ]; then
         echo -e "${INFO} Attempting Install of Git"
-        sudo "${OS_INSTALL} git"
+        sudo bash -c "${OS_INSTALL} git"
     else
         echo -e "${FAIL} GIT has not been detected"
         echo -e "${WARN} This is required to download and update Gravity Sync"
@@ -147,7 +147,7 @@ if hash rsync 2>/dev/null; then
 else
     if [ ! "${OS_PKG}" = "unknown" ]; then
         echo -e "${INFO} Attempting Install of Rsync"
-        sudo "${OS_INSTALL} rsync"
+        sudo bash -c "${OS_INSTALL} rsync"
     else
         echo -e "${FAIL} RSYNC not detected on this system"
         echo -e "${WARN} This is required to transfer data to/from your remote Pi-hole"
