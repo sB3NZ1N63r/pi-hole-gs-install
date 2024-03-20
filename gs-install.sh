@@ -59,7 +59,7 @@ CROSSCOUNT="0"
 PHFAILCOUNT="0"
 CURRENTUSER=$(whoami)
 
-gsGitUrl="https://github.com/sB3NZ1N63r/pi-hole-gs-install.git"
+gsGitUrl="https://github.com/sB3NZ1N63r/pi-hole-gravity-sync.git"
 
 
 # Header
